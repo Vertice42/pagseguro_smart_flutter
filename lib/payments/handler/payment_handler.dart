@@ -29,4 +29,6 @@ abstract class PaymentHandler {
     String transactionId,
     String response,
   });
+
+  void onEventCode(int eventCode) {}
 }

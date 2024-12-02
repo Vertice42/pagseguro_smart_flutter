@@ -39,8 +39,7 @@ public class PaymentsUseCase {
             Boolean partialPay,
             Boolean isCarne
     ) {
-        return doPayment(
-                new PlugPagPaymentData(
+        return doPayment(new PlugPagPaymentData(
                         TYPE_CREDITO,
                         value,
                         INSTALLMENT_TYPE_A_VISTA,

@@ -46,6 +46,11 @@ class PaymentController extends PaymentHandler {
   }
 
   @override
+  void onEventCode(int eventCode) {
+    BotToast.showText(text: "eventCode: $eventCode");
+  }
+
+  @override
   void onMessage(String message) {
     BotToast.showText(text: message);
   }
@@ -85,9 +90,7 @@ class PaymentController extends PaymentHandler {
     this.transactionCode = transactionCode;
     this.transactionId = transactionId;
     this.response = response;
-    BotToast.showText(
-        text:
-            "{transactionCode: $transactionCode \n transactionId: $transactionId}");
+    BotToast.showText(text: "{transactionCode: $transactionCode \n transactionId: $transactionId}");
     enableRefund = true;
   }
 }

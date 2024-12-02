@@ -23,10 +23,16 @@ public class PaymentsFragment implements PaymentsContract {
   private static final String ACTIVE_DIALOG = "activeDialog";
   private static final String ON_AUTH_PROGRESS = "onAuthProgress";
   private static final String ON_TRANSACTION_INFO = "onTransactionInfo";
+  private static final String ON_EVENT_CODE = "onEventCode";
 
   @Override
   public void onTransactionSuccess() {
     this.channel.invokeMethod(ON_TRANSACTION_SUCCESS, true);
+  }
+
+  @Override
+  public void onEventCode(int eventCode) {
+    this.channel.invokeMethod(ON_EVENT_CODE, eventCode);
   }
 
   @Override

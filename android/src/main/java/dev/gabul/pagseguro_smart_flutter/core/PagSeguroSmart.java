@@ -117,7 +117,6 @@ public class PagSeguroSmart {
             this.payment.rebootDevice();
             result.success(true);
         }
-
         if (call.method.equals(GET_DEFAULT_MESSAGE)) {
             Integer eventCode = call.argument("eventCode");
             if (eventCode == null) {
@@ -233,6 +232,7 @@ public class PagSeguroSmart {
             result.notImplemented();
         }
     }
+
 
     public void dispose() {
         if (this.payment != null) {

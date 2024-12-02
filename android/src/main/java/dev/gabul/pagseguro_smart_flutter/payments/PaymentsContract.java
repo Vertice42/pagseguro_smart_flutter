@@ -4,6 +4,8 @@ package dev.gabul.pagseguro_smart_flutter.payments;
 interface PaymentsContract {
   void onTransactionSuccess();
 
+  void onEventCode(int eventCode);
+
   void onError(String message);
 
   void onMessage(String message);

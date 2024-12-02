@@ -262,6 +262,11 @@ class Payment {
           paymentHandler.onLoading(call.arguments);
         }
         break;
+      case PaymentTypeHandler.ON_EVENT_CODE:
+        {
+          paymentHandler.onEventCode(call.arguments);
+        }
+        break;
       case PaymentTypeHandler.WRITE_TO_FILE:
         {
           paymentHandler.writeToFile(

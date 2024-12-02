@@ -23,6 +23,7 @@ enum PaymentTypeHandler {
   SHOW_ERROR_FORMAT,
   SHOW_ERROR_DEBIT_NFC,
   SHOW_ERROR_REFUND_NFC,
+  ON_EVENT_CODE,
 }
 
 extension StringPaymentHandlerExt on String {
@@ -42,6 +43,8 @@ extension StringPaymentHandlerExt on String {
         return PaymentTypeHandler.WRITE_TO_FILE;
       case "onAbortedSuccessfully":
         return PaymentTypeHandler.ON_ABORTED_SUCCESSFULLY;
+      case "onEventCode":
+        return PaymentTypeHandler.ON_EVENT_CODE;
       case "disposeDialog":
         return PaymentTypeHandler.DISPOSE_DIALOG;
       case "activeDialog":
@@ -95,6 +98,8 @@ extension PaymentTypeHandlerExt on PaymentTypeHandler {
         return "writeToFile";
       case PaymentTypeHandler.ON_ABORTED_SUCCESSFULLY:
         return "onAbortedSuccessfully";
+      case PaymentTypeHandler.ON_EVENT_CODE:
+        return "onEventCode";
       case PaymentTypeHandler.DISPOSE_DIALOG:
         return "disposeDialog";
       case PaymentTypeHandler.ACTIVE_DIALOG:

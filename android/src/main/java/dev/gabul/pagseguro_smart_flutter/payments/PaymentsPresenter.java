@@ -72,46 +72,37 @@ public class PaymentsPresenter {
     }
 
     private void doAction(Observable<ActionResult> action, int value) {
-        mSubscribe =
-                mUseCase
-                        .isAuthenticated()
-                        .filter(aBoolean -> {
-                            if (!aBoolean) {
-                                mFragment.onActivationDialog();
-                                mSubscribe.dispose();
+        mSubscribe = mUseCase.isAuthenticated()
+                .filter(aBoolean -> {
+                    if (!aBoolean) {
+                        mFragment.onActivationDialog();
+                        mSubscribe.dispose();
+                    }
+                    return aBoolean;
+                })
+                .flatMap((Function<Boolean, ObservableSource<ActionResult>>) aBoolean -> action)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(() -> mFragment.onTransactionSuccess())
+                .doOnDispose(() -> mFragment.disposeDialog())
+                .subscribe((ActionResult result) -> {
+                            writeToFile(result);
+                            int eventCode = result.getEventCode();
+                            mFragment.onEventCode(eventCode);
+                            if (eventCode == PlugPagEventData.EVENT_CODE_NO_PASSWORD ||
+                                    eventCode == PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD) {
+                                mFragment.onMessage(checkMessagePassword(eventCode, value));
+                            } else {
+                                mFragment.onMessage(checkMessage(result.getMessage()));
                             }
-                            return aBoolean;
-                        })
-                        .flatMap(
-                                (Function<Boolean, ObservableSource<ActionResult>>) aBoolean -> action
-                        )
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnComplete(() -> mFragment.onTransactionSuccess())
-                        .doOnDispose(() -> mFragment.disposeDialog())
-                        .subscribe(
-                                (ActionResult result) -> {
-                                    writeToFile(result);
-                                    if (
-                                            result.getEventCode() ==
-                                                    PlugPagEventData.EVENT_CODE_NO_PASSWORD ||
-                                                    result.getEventCode() ==
-                                                            PlugPagEventData.EVENT_CODE_DIGIT_PASSWORD
-                                    ) {
-                                        mFragment.onMessage(
-                                                checkMessagePassword(result.getEventCode(), value)
-                                        );
-                                    } else {
-                                        mFragment.onMessage(checkMessage(result.getMessage()));
-                                    }
-                                    checkResponse(result);
-                                },
-                                throwable -> {
-                                    mFragment.onMessage(throwable.getMessage());
-                                    mFragment.onError(throwable.getMessage());
-                                    mFragment.disposeDialog();
-                                }
-                        );
+                            checkResponse(result);
+                        },
+                        throwable -> {
+                            mFragment.onMessage(throwable.getMessage());
+                            mFragment.onError(throwable.getMessage());
+                            mFragment.disposeDialog();
+                        }
+                );
     }
 
     private void checkResponse(ActionResult result) {
@@ -162,41 +153,39 @@ public class PaymentsPresenter {
     }
 
     public void abortTransaction() {
-        mSubscribe =
-                mUseCase
-                        .abort()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe();
+        mSubscribe = mUseCase.abort()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 
     public void activate(String activationCode) {
         Log.d("print", "*** ATIVANDO PINPAD: " + activationCode);
         mFragment.onMessage("Ativando terminal");
-        mSubscribe =
-                mUseCase
-                        .initializeAndActivatePinpad(activationCode)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .doOnSubscribe(disposable -> mFragment.onLoading(true))
-                        .doOnComplete(() -> {
+        mSubscribe = mUseCase.initializeAndActivatePinpad(activationCode)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .doOnSubscribe(disposable -> mFragment.onLoading(true))
+                .doOnComplete(() -> {
+                    mFragment.onLoading(false);
+                    mFragment.onMessage("Terminal ativado");
+                    mFragment.onAuthProgress("Terminal ativado");
+                    mFragment.disposeDialog();
+                    Log.d("print", "*** pinpad ativado ");
+                })
+                .doOnDispose(() -> mFragment.disposeDialog())
+                .subscribe(actionResult -> {
+                            mFragment.onEventCode(actionResult.getEventCode());
+                            mFragment.onAuthProgress(actionResult.getMessage());
+                        },
+                        throwable -> {
                             mFragment.onLoading(false);
-                            mFragment.onMessage("Terminal ativado");
-                            mFragment.onAuthProgress("Terminal ativado");
+                            mFragment.onMessage("Error ao ativar terminal");
                             mFragment.disposeDialog();
-                            Log.d("print", "*** pinpad ativado ");
-                        })
-                        .doOnDispose(() -> mFragment.disposeDialog())
-                        .subscribe(
-                                actionResult -> mFragment.onAuthProgress(actionResult.getMessage()),
-                                throwable -> {
-                                    mFragment.onLoading(false);
-                                    mFragment.onMessage("Error ao ativar terminal");
-                                    mFragment.disposeDialog();
-                                    mFragment.onError(throwable.getMessage());
-                                    Log.d("print", "*** throw: " + throwable.getMessage());
-                                }
-                        );
+                            mFragment.onError(throwable.getMessage());
+                            Log.d("print", "*** throw: " + throwable.getMessage());
+                        }
+                );
         Log.d("print", "*** FIM ATIVAÇÃO: ");
     }
 
@@ -231,23 +220,21 @@ public class PaymentsPresenter {
     }
 
     public void getLastTransaction() {
-        mSubscribe =
-                mUseCase
-                        .getLastTransaction()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(
-                                actionResult -> {
-                                    String response;
-                                    response = new Gson().toJson(actionResult);
-                                    mFragment.onTransactionInfo(
-                                            actionResult.getTransactionCode(),
-                                            actionResult.getTransactionId(),
-                                            response
-                                    );
-                                },
-                                throwable -> mFragment.onError(throwable.getMessage())
-                        );
+        mSubscribe = mUseCase.getLastTransaction()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(actionResult -> {
+                            String response;
+                            response = new Gson().toJson(actionResult);
+                            mFragment.onEventCode(actionResult.getEventCode());
+                            mFragment.onTransactionInfo(
+                                    actionResult.getTransactionCode(),
+                                    actionResult.getTransactionId(),
+                                    response
+                            );
+                        },
+                        throwable -> mFragment.onError(throwable.getMessage())
+                );
     }
 
     public void dispose() {

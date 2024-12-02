@@ -206,7 +206,8 @@ public class PrinterUsecase {
             @Override
             public void onError(PlugPagPrintResult printResult) {
                 actionResult.setResult(999999);
-                actionResult.setMessage("Error code: " + printResult.getErrorCode() + " Erro: " + printResult.getMessage());
+                actionResult.setMessage("Error code: " + printResult.getErrorCode() +
+                        " Erro: " + printResult.getMessage());
                 emitter.onNext(actionResult);
             }
 
