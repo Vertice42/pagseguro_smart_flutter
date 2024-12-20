@@ -61,7 +61,7 @@ public class PaymentsFragment implements PaymentsContract {
     String transactionId,
     String response
   ) {
-    Map<String, String> map = new HashMap<String, String>();
+    Map<String, String> map = new HashMap<>();
     map.put("transactionCode", transactionCode);
     map.put("transactionId", transactionId);
     map.put("response", response);
@@ -94,7 +94,7 @@ public class PaymentsFragment implements PaymentsContract {
     String transactionId,
     String response
   ) {
-    Map<String, String> map = new HashMap<String, String>();
+    Map<String, String> map = new HashMap<>();
     map.put("transactionCode", transactionCode);
     map.put("transactionId", transactionId);
     map.put("response", response);

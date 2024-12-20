@@ -98,7 +98,7 @@ public class GetUserUseCase {
     }
 
     private String getStringFromResult(PlugPagNFCResult result){
-        return Utils.convertBytes2String(result.getSlots()[result.getStartSlot()].get("data"), false);
+        return Utils.convertBytesToString(result.getSlots()[result.getStartSlot()].get("data"), false);
     }
 
 }

@@ -1,6 +1,5 @@
 package dev.gabul.pagseguro_smart_flutter.nfc;
 
-import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagNFCResult;
 import dev.gabul.pagseguro_smart_flutter.user.UserData;
 
 public interface NFCContract  {

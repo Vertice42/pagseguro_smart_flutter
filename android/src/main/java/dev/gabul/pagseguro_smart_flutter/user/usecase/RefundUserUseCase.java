@@ -4,7 +4,7 @@ import android.nfc.tech.MifareClassic;
 
 import androidx.annotation.NonNull;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagNearFieldCardData;
@@ -25,8 +25,7 @@ public class RefundUserUseCase {
 
     public Observable<String> reFundUserInNFcCard(UserData userData) {
 
-        final List<Observable<String>> observableSources = Arrays.asList(
-
+        final List<Observable<String>> observableSources = Collections.singletonList(
                 reFundValueInNfcCard(userData)
 //                writeNameInNfcCard(userData),
 //                writeCpfInNfcCard(userData),
@@ -72,7 +71,7 @@ public class RefundUserUseCase {
 
     private PlugPagSimpleNFCData buildCardData(@NonNull Integer block, @NonNull String value){
         PlugPagSimpleNFCData cardData = new PlugPagSimpleNFCData(PlugPagNearFieldCardData.ONLY_M, block, MifareClassic.KEY_DEFAULT);
-        cardData.setValue(Utils.convertString2Bytes(value));
+        cardData.setValue(Utils.convertStringToBytes(value));
         return cardData;
     }
 }

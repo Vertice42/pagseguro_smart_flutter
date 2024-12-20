@@ -1,5 +1,7 @@
 package dev.gabul.pagseguro_smart_flutter.payments;
 
+import android.util.Log;
+
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPag;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagActivationData;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagCustomPrinterLayout;
@@ -10,7 +12,6 @@ import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagVoidData;
 import br.com.uol.pagseguro.plugpagservice.wrapper.data.request.PlugPagBeepData;
 import br.com.uol.pagseguro.plugpagservice.wrapper.exception.PlugPagException;
 import dev.gabul.pagseguro_smart_flutter.core.ActionResult;
-import io.flutter.Log;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -19,13 +20,19 @@ public class PaymentsUseCase {
 
     private final PlugPag mPlugPag;
 
-    private final int TYPE_CREDITO = 1;
-    private final int TYPE_DEBITO = 2;
-    private final int TYPE_VOUCHER = 3;
-    private final int TYPE_PIX = 5;
+    private static final int TYPE_CREDITO = 1;
+    private static final int TYPE_DEBITO = 2;
+    private static final int TYPE_VOUCHER = 3;
+    private static final int TYPE_PIX = 5;
 
     private final int INSTALLMENT_TYPE_A_VISTA = 1;
+    /**
+     * @noinspection unused SpellCheckingInspection
+     */
     private final int INSTALLMENT_TYPE_PARC_VENDEDOR = 2;
+    /**
+     * @noinspection unused, SpellCheckingInspection
+     */
     private final int INSTALLMENT_TYPE_PARC_COMPRADOR = 3;
 
     public PaymentsUseCase(PlugPag plugPag) {
@@ -183,12 +190,13 @@ public class PaymentsUseCase {
             PlugPagTransactionResult plugPagTransactionResult,
             ActionResult result
     ) {
-        if (plugPagTransactionResult.getResult() != 0) {
-            emitter.onError(
-                    new PlugPagException(
-                            plugPagTransactionResult.getMessage(),
-                            plugPagTransactionResult.getErrorCode()
-                    )
+        Integer transactionResultCode = plugPagTransactionResult.getResult();
+        if (transactionResultCode != null && transactionResultCode != 0) {
+            String message = plugPagTransactionResult.getMessage();
+            String errorCode = plugPagTransactionResult.getErrorCode();
+            emitter.onError(new PlugPagException(
+                    message != null ? message : "null Message",
+                    errorCode != null ? errorCode : "null errorCode")
             );
         } else {
             result.setTransactionCode(plugPagTransactionResult.getTransactionCode());
@@ -268,12 +276,8 @@ public class PaymentsUseCase {
         });
     }
 
-    public void rebootDevice() {
-        try {
-            mPlugPag.reboot();
-        } catch (Exception e) {
-            Log.e("PlugPag", "ERROR on REBOOT: " + e.getMessage());
-        }
+    public void rebootDevice() throws PlugPagException {
+        mPlugPag.reboot();
     }
 
     public void beep() {
@@ -282,8 +286,8 @@ public class PaymentsUseCase {
                     PlugPagBeepData.FREQUENCE_LEVEL_1, 200);
             mPlugPag.beep(beepData);
         } catch (Exception e) {
+            Log.e(PaymentsUseCase.class.getName(), "run beep: ", e);
         }
     }
-
 
 }

@@ -23,7 +23,7 @@ public class DebitUserUseCase {
         this.mNfcUseCase = nfcUseCase;
     }
 
-    public Observable<String> debitInNFcCard(UserData userData){
+    public Observable<String> debitInNFcCard(UserData userData) {
 
         final List<Observable<String>> observableSources = Arrays.asList(
 
@@ -43,7 +43,7 @@ public class DebitUserUseCase {
         return mNfcUseCase.debitNfc(buildCardData(NFCConstants.VALUE_BLOCK, userData.getValue()));
     }
 
-       private Observable<String> debitTagInNfcCard(UserData userData) {
+    private Observable<String> debitTagInNfcCard(UserData userData) {
         return mNfcUseCase.debitNfc(buildCardData(NFCConstants.TAG_BLOCK, ""));
     }
 
@@ -67,10 +67,9 @@ public class DebitUserUseCase {
 //    }
 
 
-
-    private PlugPagSimpleNFCData buildCardData(@NonNull Integer block, @NonNull String value){
+    private PlugPagSimpleNFCData buildCardData(@NonNull Integer block, @NonNull String value) {
         PlugPagSimpleNFCData cardData = new PlugPagSimpleNFCData(PlugPagNearFieldCardData.ONLY_M, block, MifareClassic.KEY_DEFAULT);
-        cardData.setValue(Utils.convertString2Bytes(value));
+        cardData.setValue(Utils.convertStringToBytes(value));
         return cardData;
     }
 }

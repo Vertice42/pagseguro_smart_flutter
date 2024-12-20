@@ -2,7 +2,8 @@ package dev.gabul.pagseguro_smart_flutter.printer.usecase;
 
 
 import android.os.Environment;
-import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,18 +19,16 @@ import br.com.uol.pagseguro.plugpagservice.wrapper.exception.PlugPagException;
 import dev.gabul.pagseguro_smart_flutter.core.ActionResult;
 import dev.gabul.pagseguro_smart_flutter.payments.PaymentsFragment;
 
-import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 
-public class PrinterUsecase {
-
-    private PlugPag mPlugpag;
-    private PaymentsFragment mFragment;
+public class PrinterUseCase {
+    private final PlugPag mPlugpag;
+    private final PaymentsFragment mFragment;
 
     @Inject
-    public PrinterUsecase(PlugPag plugPag, MethodChannel channel) {
+    public PrinterUseCase(PlugPag plugPag, MethodChannel channel) {
         this.mPlugpag = plugPag;
         this.mFragment = new PaymentsFragment(channel);
     }
@@ -38,15 +37,14 @@ public class PrinterUsecase {
         try {
             mFragment.onAuthProgress("Iniciando impressão");
             mFragment.onMessage("Iniciando impressão");
-            //String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/teste.jpg";
             File file = new File(path);
-            if(!file.exists()) {
+            if (!file.exists()) {
                 mFragment.onMessage("O arquivo informado não foi encontrado.");
                 mFragment.onError("Arquivo não encontrado no diretório: " + file.getAbsolutePath());
                 return;
             }
 
-            PlugPagPrinterData printerData = new PlugPagPrinterData(file.getAbsolutePath(), 4, 0);
+            var printerData = new PlugPagPrinterData(file.getAbsolutePath(), 4, 0);
             PlugPagPrinterListener listener = new PlugPagPrinterListener() {
                 @Override
                 public void onSuccess(PlugPagPrintResult plugPagPrintResult) {
@@ -56,6 +54,7 @@ public class PrinterUsecase {
                     mFragment.onAuthProgress(resultPrinter + message);
 
                 }
+
                 @Override
                 public void onError(PlugPagPrintResult plugPagPrintResult) {
                     String errorMessage = "Error message: " + plugPagPrintResult.getMessage();
@@ -70,7 +69,7 @@ public class PrinterUsecase {
 
             mFragment.onMessage("Impressão finalizada");
             mFragment.onAuthProgress("Impressão finalizada");
-        }catch(Exception e) {
+        } catch (Exception e) {
             mFragment.onMessage("Erro: " + e.getMessage());
             mFragment.onAuthProgress("Erro ao realizar impressão");
             mFragment.onError("Erro impressão: " + e.getMessage());
@@ -78,10 +77,9 @@ public class PrinterUsecase {
     }
 
     public Observable<ActionResult> printFile(String fileName) {
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/" + fileName;
-
+        final String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        String path = absolutePath + "/Download/" + fileName;
         File file = new File(path);
-
 
         return Observable.create((ObservableEmitter<ActionResult> emitter) -> {
             ActionResult actionResult = new ActionResult();
@@ -110,20 +108,16 @@ public class PrinterUsecase {
         return Observable.create((ObservableEmitter<Boolean> emitter) -> {
             try {
                 File file = new File(filePath);
-                if(!file.exists()) {
+                if (!file.exists()) {
                     mFragment.onMessage("O arquivo informado não foi encontrado.");
-                    mFragment.onError("Arquivo não encontrado no diretório: " + file.getAbsolutePath());
+                    mFragment.onError("Arquivo não encontrado no diretório: " +
+                            file.getAbsolutePath());
                 }
 
                 if (file.exists()) {
-                    PlugPagPrintResult result = mPlugpag.printFromFile(
-                            new PlugPagPrinterData(
-                                    file.getAbsolutePath(),
-                                    4,
-                                    0));
-
-
-
+                    mPlugpag.printFromFile(new PlugPagPrinterData(file.getAbsolutePath(),
+                            4,
+                            0));
                     emitter.onNext(true);
                 } else {
                     emitter.onError(new FileNotFoundException());
@@ -142,80 +136,59 @@ public class PrinterUsecase {
 
         return Observable.create((ObservableEmitter<ActionResult> emitter) -> {
             ActionResult actionResult = new ActionResult();
-           try {
-               File file = new File(filePath);
-               if(!file.exists()) {
-                   mFragment.onMessage("O arquivo informado não foi encontrado.");
-                   mFragment.onError("Arquivo não encontrado no diretório: " + file.getAbsolutePath());
-               }
-               if (file.exists()) {
-                   PlugPagPrintResult result = mPlugpag.printFromFile(
-                           new PlugPagPrinterData(
-                                   file.getPath(),
-                                   4,
-                                   0));
+            try {
+                File file = new File(filePath);
+                if (!file.exists()) {
+                    mFragment.onMessage("O arquivo informado não foi encontrado.");
+                    mFragment.onError("Arquivo não encontrado no diretório: "
+                            + file.getAbsolutePath());
+                }
+                if (file.exists()) {
+                    PlugPagPrintResult result = mPlugpag.printFromFile(
+                            new PlugPagPrinterData(
+                                    file.getPath(),
+                                    4,
+                                    0));
 
+                    setPrintListener(emitter, actionResult);
+                    String message = result.getMessage();
+                    if (message != null && message.equals("Success")) {
+                        actionResult.setResult(0);
+                    } else {
+                        actionResult.setResult(result.getResult());
+                    }
 
-                   setPrintListener2(emitter);
-                   if(result.getMessage().equals("Success")) {
-                       actionResult.setResult(0);
-                   }else {
-                       actionResult.setResult(result.getResult());
-                   }
+                    actionResult.setMessage(message);
 
-                   actionResult.setMessage(result.getMessage());
-
-                   emitter.onNext(actionResult);
-               } else {
-                   emitter.onError(new FileNotFoundException());
-               }
-               emitter.onComplete();
-           } catch (Exception e) {
-               mFragment.onMessage("Erro: " + e.getMessage());
-               mFragment.onAuthProgress("Erro ao realizar impressão");
-               mFragment.onError("Erro impressão: " + e.getMessage());
-               emitter.onError(e);
-           }
+                    emitter.onNext(actionResult);
+                } else {
+                    emitter.onError(new FileNotFoundException());
+                }
+                emitter.onComplete();
+            } catch (Exception e) {
+                mFragment.onMessage("Erro: " + e.getMessage());
+                mFragment.onAuthProgress("Erro ao realizar impressão");
+                mFragment.onError("Erro impressão: " + e.getMessage());
+                emitter.onError(e);
+            }
         });
     }
 
     private void setPrintListener(ObservableEmitter<ActionResult> emitter, ActionResult result) {
         mPlugpag.setPrinterListener(new PlugPagPrinterListener() {
             @Override
-            public void onError(PlugPagPrintResult printResult) {
-                emitter.onError(new PlugPagException(String.format("Error %s %s", printResult.getErrorCode(), printResult.getMessage())));
+            public void onError(@NonNull PlugPagPrintResult printResult) {
+                emitter.onError(new PlugPagException(String.format("Error %s %s",
+                        printResult.getErrorCode(), printResult.getMessage())));
             }
 
             @Override
-            public void onSuccess(PlugPagPrintResult printResult) {
+            public void onSuccess(@NonNull PlugPagPrintResult printResult) {
                 result.setResult(printResult.getResult());
-                result.setMessage(
-                        String.format(
-                                Locale.getDefault(), "Print OK: Steps [%d]", printResult.getSteps()
-                        )
-                );
+                result.setMessage(String.format(Locale.getDefault(), "Print OK: Steps [%d]",
+                        printResult.getSteps()));
                 result.setErrorCode(printResult.getErrorCode());
                 emitter.onNext(result);
-            }
-        });
-    }
-
-    private void setPrintListener2(ObservableEmitter<ActionResult> emitter) {
-        ActionResult actionResult = new ActionResult();
-        mPlugpag.setPrinterListener(new PlugPagPrinterListener() {
-            @Override
-            public void onError(PlugPagPrintResult printResult) {
-                actionResult.setResult(999999);
-                actionResult.setMessage("Error code: " + printResult.getErrorCode() +
-                        " Erro: " + printResult.getMessage());
-                emitter.onNext(actionResult);
-            }
-
-            @Override
-            public void onSuccess(PlugPagPrintResult printResult) {
-                actionResult.setResult(0);
-                actionResult.setMessage(printResult.getMessage());
-                emitter.onNext(actionResult);
             }
         });
     }

@@ -1,30 +1,27 @@
 package dev.gabul.pagseguro_smart_flutter.printer;
 
-import android.util.Log;
-
 import java.io.FileNotFoundException;
 
 import javax.inject.Inject;
 
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPag;
 import dev.gabul.pagseguro_smart_flutter.payments.PaymentsFragment;
-import dev.gabul.pagseguro_smart_flutter.printer.usecase.PrinterUsecase;
+import dev.gabul.pagseguro_smart_flutter.printer.usecase.PrinterUseCase;
 
-import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class PrinterPresenter implements Disposable {
-    private PrinterUsecase mUseCase;
-    private PaymentsFragment mFragment;
+    private final PrinterUseCase mUseCase;
+    private final PaymentsFragment mFragment;
 
     private Disposable mSubscribe;
 
     @Inject
     public PrinterPresenter(PlugPag plugPag, MethodChannel channel) {
-        this.mUseCase = new PrinterUsecase(plugPag, channel);
+        this.mUseCase = new PrinterUseCase(plugPag, channel);
         this.mFragment = new PaymentsFragment(channel);
     }
 

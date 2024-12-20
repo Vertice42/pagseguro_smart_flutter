@@ -13,11 +13,12 @@ import dev.gabul.pagseguro_smart_flutter.helpers.Utils;
 import dev.gabul.pagseguro_smart_flutter.managers.UserDataManager;
 import dev.gabul.pagseguro_smart_flutter.nfc.usecase.NFCUseCase;
 import dev.gabul.pagseguro_smart_flutter.user.UserData;
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class NFCPresenter  {
+public class NFCPresenter {
 
     private final NFCUseCase mUseCase;
     private final NFCFragment mFragment;
@@ -31,7 +32,7 @@ public class NFCPresenter  {
         this.mUserManager = userManager;
     }
 
-    public void readNFCCard(String idEvento) {
+    public void readNFC_Card(String idEvento) {
 
         mSubscribe = mUseCase.controlLed(new PlugPagLedData(PlugPagLedData.LED_BLUE))
                 .subscribeOn(Schedulers.io())
@@ -53,7 +54,7 @@ public class NFCPresenter  {
                         },
                         throwable -> {
                             mFragment.showErrorRead(throwable.getMessage());
-                           // Thread.sleep(1000);
+                            // Thread.sleep(1000);
                             this.controlLed(new PlugPagLedData(PlugPagLedData.LED_OFF));
                         }
                 );
@@ -71,9 +72,17 @@ public class NFCPresenter  {
     }
 
 
-    public void writeNFCCard(String value, String name, String cpf, String numberTag, String cellPhone, String active, String idEvento) {
+    public void writeNFC_Card(String value, String name, String cpf, String numberTag,
+                              String cellPhone, String active, String idEvento) {
 
-        UserData userData = new UserData(Utils.adicionaAsterisco(value), Utils.adicionaAsterisco(name), Utils.adicionaAsterisco(cpf), Utils.adicionaAsterisco(numberTag), Utils.adicionaAsterisco(cellPhone), Utils.adicionaAsterisco(active), Utils.adicionaAsterisco(idEvento), Utils.adicionaAsterisco(value));
+        UserData userData = new UserData(Utils.addAsterisk(value),
+                Utils.addAsterisk(name),
+                Utils.addAsterisk(cpf),
+                Utils.addAsterisk(numberTag),
+                Utils.addAsterisk(cellPhone),
+                Utils.addAsterisk(active),
+                Utils.addAsterisk(idEvento),
+                Utils.addAsterisk(value));
 
         mSubscribe = mUseCase.controlLed(new PlugPagLedData(PlugPagLedData.LED_BLUE))
                 .subscribeOn(Schedulers.io())
@@ -95,7 +104,7 @@ public class NFCPresenter  {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        result -> showSuccessWrite(result),
+                        this::showSuccessWrite,
                         throwable -> {
                             mFragment.showErrorWrite(throwable.getMessage());
                             this.controlLed(new PlugPagLedData(PlugPagLedData.LED_OFF));
@@ -157,9 +166,11 @@ public class NFCPresenter  {
                 );
     }
 
-    public void reFundNFCCard(String value, String idEvento) {
+    public void reFundNFC_Card(String value, String idEvento) {
 
-        UserData userData = new UserData(Utils.adicionaAsterisco(value), null, null, null, null, null, Utils.adicionaAsterisco(idEvento), null);
+        UserData userData = new UserData(Utils.addAsterisk(value), null, null,
+                null, null, null,
+                Utils.addAsterisk(idEvento), null);
 
         mSubscribe = mUseCase.controlLed(new PlugPagLedData(PlugPagLedData.LED_BLUE))
                 .subscribeOn(Schedulers.io())
@@ -170,9 +181,11 @@ public class NFCPresenter  {
                 );
     }
 
-    public void reWriteNFCCard(String value, String idEvento) {
+    public void reWriteNFC_Card(String value, String idEvento) {
 
-        UserData userData = new UserData(Utils.adicionaAsterisco(value), null, null, null, null, null, Utils.adicionaAsterisco(idEvento), Utils.adicionaAsterisco(value));
+        UserData userData = new UserData(Utils.addAsterisk(value), null, null,
+                null, null, null, Utils.
+                addAsterisk(idEvento), Utils.addAsterisk(value));
 
         mSubscribe = mUseCase.controlLed(new PlugPagLedData(PlugPagLedData.LED_BLUE))
                 .subscribeOn(Schedulers.io())
@@ -191,7 +204,7 @@ public class NFCPresenter  {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        result -> showSuccessReFund(result),
+                        this::showSuccessReFund,
                         throwable -> mFragment.showErrorRefundNfc(throwable.getMessage()),
                         () -> {
                             Log.d(NFCPresenter.class.getSimpleName(), "writeUser finished");
@@ -209,7 +222,7 @@ public class NFCPresenter  {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        result -> showSuccessReWrite(result),
+                        this::showSuccessReWrite,
                         throwable -> mFragment.showErrorReWrite(throwable.getMessage()),
                         () -> {
                             Log.d(NFCPresenter.class.getSimpleName(), "writeUser finished");
@@ -219,9 +232,10 @@ public class NFCPresenter  {
 
     }
 
-    public void debitNFCCard(String idEvento, String value) {
-
-        UserData userData = new UserData(Utils.adicionaAsterisco(value), null, null, null, null, null, Utils.adicionaAsterisco(idEvento), null);
+    public void debitNFC_Card(String idEvento, String value) {
+        UserData userData = new UserData(Utils.addAsterisk(value), null,
+                null, null, null,
+                null, Utils.addAsterisk(idEvento), null);
 
         mSubscribe = mUseCase.controlLed(new PlugPagLedData(PlugPagLedData.LED_BLUE))
                 .subscribeOn(Schedulers.io())
@@ -238,8 +252,7 @@ public class NFCPresenter  {
                 .lastElement()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        result -> showSuccessDebit(result),
+                .subscribe(this::showSuccessDebit,
                         throwable -> mFragment.showErrorDebitNfc(throwable.getMessage()),
                         () -> {
                             Log.d(NFCPresenter.class.getSimpleName(), "writeUser finished");
@@ -277,9 +290,10 @@ public class NFCPresenter  {
         mSubscribe = mUseCase.clearBlocks(blocks)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-               // .distinct()
+                // .distinct()
                 .subscribe(
-                        result -> {},
+                        result -> {
+                        },
                         throwable -> mFragment.showErrorFormat(throwable.getMessage()),
                         () -> showSuccessFormat(1)
                         //mView::onBlockCleanSuccessful
@@ -287,9 +301,7 @@ public class NFCPresenter  {
 
     }
 
-
     public void showSuccessFormat(Integer res) {
-
         mSubscribe = mUseCase.controlLed(new PlugPagLedData(PlugPagLedData.LED_GREEN))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -298,26 +310,23 @@ public class NFCPresenter  {
                         throwable -> mFragment.showErrorReWrite(throwable.getMessage())
                 );
 
-
     }
 
     public void controlLed(PlugPagLedData plugPagLedData) {
-
         mSubscribe = mUseCase.controlLed(plugPagLedData)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        result -> {
-                           // System.out.println("dispose aqui");
-                           // mSubscribe.dispose();
-                        }
-                );
+                .subscribe(result ->
+                        Log.d(NFCPresenter.class.getSimpleName(), "control Led finished"));
     }
 
     public void dispose() {
-        if(mSubscribe != null){
+        if (mSubscribe != null) {
             mSubscribe.dispose();
         }
     }
 
+    public Completable abort() {
+        return mUseCase.abort();
+    }
 }

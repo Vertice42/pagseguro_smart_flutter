@@ -77,7 +77,7 @@ public class EditUserUseCase {
 
     private PlugPagSimpleNFCData buildCardData(@NonNull Integer block, @NonNull String value){
         PlugPagSimpleNFCData cardData = new PlugPagSimpleNFCData(PlugPagNearFieldCardData.ONLY_M, block, MifareClassic.KEY_DEFAULT);
-        cardData.setValue(Utils.convertString2Bytes(value));
+        cardData.setValue(Utils.convertStringToBytes(value));
         return cardData;
     }
 }

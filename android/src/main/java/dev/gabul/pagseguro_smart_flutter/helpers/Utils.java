@@ -5,8 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class Utils {
-
-    //Utils
     public static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
@@ -17,7 +15,7 @@ public class Utils {
         return data;
     }
 
-    public static byte[] convertString2Bytes(String content) {
+    public static byte[] convertStringToBytes(String content) {
         byte[] ret = new byte[16];
         byte[] buf = content.getBytes(StandardCharsets.UTF_8);
         int retLen = ret.length;
@@ -34,7 +32,7 @@ public class Utils {
         return ret;
     }
 
-    public static String convertBytes2String(byte[] data, boolean mShowDataAsHexString) {
+    public static String convertBytesToString(byte[] data, boolean mShowDataAsHexString) {
         String ret;
         if (mShowDataAsHexString) {
             StringBuilder sb = new StringBuilder();
@@ -55,18 +53,18 @@ public class Utils {
         return ret;
     }
 
-    public static byte[] convertInt2Bytes(int value, int byteSize) {
+    public static byte[] convertIntToBytes(int value, int byteSize) {
         return ByteBuffer.allocate(byteSize).putInt(value).array();
     }
 
-    public static int convertBytes2Int(byte[] array) {
+    public static int convertBytesToInt(byte[] array) {
         if (array.length < 4) {
             throw new IllegalArgumentException("O array deve ter pelo menos 4 bytes de comprimento");
         }
         return ByteBuffer.wrap(array).getInt();
     }
 
-    public static float convertBytes2Float(byte[] array) {
+    public static float convertBytesToFloat(byte[] array) {
         byte[] result = new byte[4];
         System.arraycopy(array, 0, result, 0, 4);
         return ByteBuffer.wrap(result).getFloat();
@@ -82,14 +80,14 @@ public class Utils {
         return arrays;
     }
 
-    public static String removeAsterisco(String valor) {
+    public static String removeAsterisk(String valor) {
         if(valor != null) {
             return valor.replace("*", "");
         }
         return "";
     }
 
-    public static String adicionaAsterisco(String valor) {
+    public static String addAsterisk(String valor) {
         if (valor.length() >= 16) {
             return valor;
         }

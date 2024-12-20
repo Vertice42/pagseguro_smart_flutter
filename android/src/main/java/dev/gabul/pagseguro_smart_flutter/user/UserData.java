@@ -1,5 +1,7 @@
 package dev.gabul.pagseguro_smart_flutter.user;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -119,6 +121,7 @@ public class UserData implements Serializable {
         return Objects.hash(getValue(), getName(), getCpf(), getNumberTag(), getCellPhone(), getActive(), getIdEvento(), getOpenValue());
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "UserData{" +

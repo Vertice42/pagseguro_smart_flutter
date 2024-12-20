@@ -43,13 +43,13 @@ public class NFCFragment implements NFCContract {
     public void showSuccess(UserData result) {
 
         final List<String> results = new ArrayList<>();
-        results.add(Utils.removeAsterisco(result.getValue()));
-        results.add(Utils.removeAsterisco(result.getName()));
-        results.add(Utils.removeAsterisco(result.getCpf()));
-        results.add(Utils.removeAsterisco(result.getNumberTag()));
-        results.add(Utils.removeAsterisco(result.getCellPhone()));
-        results.add(Utils.removeAsterisco(result.getActive()));
-        results.add(Utils.removeAsterisco(result.getOpenValue()));
+        results.add(Utils.removeAsterisk(result.getValue()));
+        results.add(Utils.removeAsterisk(result.getName()));
+        results.add(Utils.removeAsterisk(result.getCpf()));
+        results.add(Utils.removeAsterisk(result.getNumberTag()));
+        results.add(Utils.removeAsterisk(result.getCellPhone()));
+        results.add(Utils.removeAsterisk(result.getActive()));
+        results.add(Utils.removeAsterisk(result.getOpenValue()));
 
         this.channel.invokeMethod(ON_SUCCESS, results);
     }

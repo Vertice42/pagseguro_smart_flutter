@@ -1,7 +1,5 @@
 package dev.gabul.pagseguro_smart_flutter.managers;
 
-
-
 import dev.gabul.pagseguro_smart_flutter.user.UserData;
 import dev.gabul.pagseguro_smart_flutter.user.usecase.DebitUserUseCase;
 import dev.gabul.pagseguro_smart_flutter.user.usecase.EditUserUseCase;
@@ -12,14 +10,17 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 
 public class UserDataManager {
+    private final GetUserUseCase mGetUser;
+    private final NewUserUseCase mNewUser;
+    private final EditUserUseCase mEditUser;
+    private final RefundUserUseCase mRefundUser;
+    private final DebitUserUseCase mDebitUser;
 
-    private GetUserUseCase mGetUser;
-    private NewUserUseCase mNewUser;
-    private EditUserUseCase mEditUser;
-    private RefundUserUseCase mRefundUser;
-    private DebitUserUseCase mDebitUser;
-
-    public UserDataManager(GetUserUseCase getUser, NewUserUseCase newUser, EditUserUseCase mEditUser, DebitUserUseCase mDebitUser, RefundUserUseCase mRefundUser) {
+    public UserDataManager(GetUserUseCase getUser,
+                           NewUserUseCase newUser,
+                           EditUserUseCase mEditUser,
+                           DebitUserUseCase mDebitUser,
+                           RefundUserUseCase mRefundUser) {
         this.mGetUser = getUser;
         this.mNewUser = newUser;
         this.mEditUser = mEditUser;
@@ -27,8 +28,8 @@ public class UserDataManager {
         this.mRefundUser = mRefundUser;
     }
 
-    public Single<UserData> getUserData(String idEvento){
-        return mGetUser.getUser(idEvento);
+    public Single<UserData> getUserData(String eventID){
+        return mGetUser.getUser(eventID);
     }
 
     public Observable<Integer> writeUserData(UserData userData){

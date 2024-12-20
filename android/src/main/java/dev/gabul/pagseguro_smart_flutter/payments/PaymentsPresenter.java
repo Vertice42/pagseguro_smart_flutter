@@ -4,9 +4,12 @@ import android.util.Log;
 
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPag;
 import br.com.uol.pagseguro.plugpagservice.wrapper.PlugPagEventData;
+import br.com.uol.pagseguro.plugpagservice.wrapper.exception.PlugPagException;
 import dev.gabul.pagseguro_smart_flutter.core.ActionResult;
 
 import com.google.gson.Gson;
+
+import java.util.Locale;
 
 import io.flutter.plugin.common.MethodChannel;
 import io.reactivex.Observable;
@@ -19,10 +22,9 @@ import io.reactivex.schedulers.Schedulers;
 import javax.inject.Inject;
 
 public class PaymentsPresenter {
-    private PaymentsUseCase mUseCase;
-    private PaymentsFragment mFragment;
+    private final PaymentsUseCase mUseCase;
+    private final PaymentsFragment mFragment;
     private Disposable mSubscribe;
-    private Boolean hasAborted = false;
     private int countPassword = 0;
 
     @Inject
@@ -31,7 +33,7 @@ public class PaymentsPresenter {
         mFragment = new PaymentsFragment(channel);
     }
 
-    public void rebootDevice() {
+    public void rebootDevice() throws PlugPagException {
         mUseCase.rebootDevice();
     }
 
@@ -83,8 +85,8 @@ public class PaymentsPresenter {
                 .flatMap((Function<Boolean, ObservableSource<ActionResult>>) aBoolean -> action)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete(() -> mFragment.onTransactionSuccess())
-                .doOnDispose(() -> mFragment.disposeDialog())
+                .doOnComplete(mFragment::onTransactionSuccess)
+                .doOnDispose(mFragment::disposeDialog)
                 .subscribe((ActionResult result) -> {
                             writeToFile(result);
                             int eventCode = result.getEventCode();
@@ -123,15 +125,13 @@ public class PaymentsPresenter {
         for (int count = countPassword; count > 0; count--) {
             strPassword.append("*");
         }
-        return String.format(
-                "VALOR: %.2f\nSENHA: %s",
-                (value / 100.0),
-                strPassword.toString()
-        );
+        //todo add UI config to change Locale
+        return String.format(new Locale("pt", "BR"),
+                "VALOR: %.2f\nSENHA: %s", (value / 100.0), strPassword);
     }
 
     private String checkMessage(String message) {
-        if (message != null && !message.isEmpty() && message.contains("SENHA")) {
+        if (message != null && message.contains("SENHA")) {
             String[] strings = message.split("SENHA");
             return strings[0].trim();
         }
@@ -156,6 +156,7 @@ public class PaymentsPresenter {
         mSubscribe = mUseCase.abort()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(mFragment::onAbortedSuccessfully)
                 .subscribe();
     }
 
@@ -173,7 +174,7 @@ public class PaymentsPresenter {
                     mFragment.disposeDialog();
                     Log.d("print", "*** pinpad ativado ");
                 })
-                .doOnDispose(() -> mFragment.disposeDialog())
+                .doOnDispose(mFragment::disposeDialog)
                 .subscribe(actionResult -> {
                             mFragment.onEventCode(actionResult.getEventCode());
                             mFragment.onAuthProgress(actionResult.getMessage());
@@ -200,7 +201,7 @@ public class PaymentsPresenter {
                     mFragment.disposeDialog();
                     Log.d("print", "*** pinpad ativado ");
                 })
-                .doOnDispose(() -> mFragment.disposeDialog())
+                .doOnDispose(mFragment::disposeDialog)
                 .subscribe(
                         result -> {
                             if (result) {
