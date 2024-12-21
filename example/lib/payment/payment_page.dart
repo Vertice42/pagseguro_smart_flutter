@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
@@ -17,7 +19,8 @@ class _PaymentPageState extends State<PaymentPage> {
   final PaymentController controller = PaymentController();
 
   double? saleValue;
-  MoneyMaskedTextController moneyController = MoneyMaskedTextController(leftSymbol: "R\$ ", decimalSeparator: ",");
+  MoneyMaskedTextController moneyController =
+      MoneyMaskedTextController(leftSymbol: "R\$ ", decimalSeparator: ",");
 
   @override
   void initState() {
@@ -91,7 +94,9 @@ class _PaymentPageState extends State<PaymentPage> {
                           controller.clickPayment = true;
                         });
                         //Chamar o método de pagamento para transação no crédito parcelado em 2x
-                        PagseguroSmart.instance().payment.creditPaymentParc(controller.saleValue, 2);
+                        PagseguroSmart.instance()
+                            .payment
+                            .creditPaymentParc(controller.saleValue, 2);
                       }
                     : null,
               ),
@@ -147,9 +152,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 : null,
             child: const Text("Cancelar Operação"),
           ),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
               Future.delayed(const Duration(seconds: 3)).then((value) => setState(() {}));
@@ -158,17 +161,27 @@ class _PaymentPageState extends State<PaymentPage> {
             },
             child: const Text("Ultima transação"),
           ),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           if (controller.enableRefund)
             ElevatedButton(
               onPressed: () {
                 //Chamar o método para estornar uma transação
-                PagseguroSmart.instance().payment.refund(transactionCode: controller.transactionCode, transactionId: controller.transactionId);
+                PagseguroSmart.instance().payment.refund(
+                    transactionCode: controller.transactionCode,
+                    transactionId: controller.transactionId);
               },
               child: const Text("Estornar transação"),
             ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              PagseguroSmart.instance()
+                  .payment
+                  .rebootDevice()
+                  .then((value) => log("rebootDevice return true"));
+            },
+            child: const Text("Reiniciar Dispositivo"),
+          )
         ],
       ),
     );

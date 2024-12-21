@@ -133,13 +133,17 @@ public class NFCUseCase {
                     return;
                 }
 
-                var readCardData = new PlugPagSimpleNFCData(PlugPagNearFieldCardData.ONLY_M,
-                        cardData.getSlot(), MifareClassic.KEY_DEFAULT);
+                PlugPagSimpleNFCData readCardData = new PlugPagSimpleNFCData(
+                        PlugPagNearFieldCardData.ONLY_M,
+                        cardData.getSlot(),
+                        MifareClassic.KEY_DEFAULT);
                 PlugPagNFCResult resultRead = mPlugPag.readNFCCardDirectly(readCardData);
 
 
-                var readCardDataTag = new PlugPagSimpleNFCData(PlugPagNearFieldCardData.ONLY_M,
-                        NFCConstants.TAG_BLOCK, MifareClassic.KEY_DEFAULT);
+                PlugPagSimpleNFCData readCardDataTag = new PlugPagSimpleNFCData(
+                        PlugPagNearFieldCardData.ONLY_M,
+                        NFCConstants.TAG_BLOCK,
+                        MifareClassic.KEY_DEFAULT);
                 PlugPagNFCResult resultReadTag = mPlugPag.readNFCCardDirectly(readCardDataTag);
 
 
@@ -254,8 +258,10 @@ public class NFCUseCase {
                     return;
                 }
 
-                var readCardData = new PlugPagSimpleNFCData(PlugPagNearFieldCardData.ONLY_M,
-                        cardData.getSlot(), MifareClassic.KEY_DEFAULT);
+                PlugPagSimpleNFCData readCardData = new PlugPagSimpleNFCData(
+                        PlugPagNearFieldCardData.ONLY_M,
+                        cardData.getSlot(),
+                        MifareClassic.KEY_DEFAULT);
                 PlugPagNFCResult resultRead = mPlugPag.readNFCCardDirectly(readCardData);
 
                 String resultReadstring = Utils.removeAsterisk(
@@ -456,8 +462,9 @@ public class NFCUseCase {
                 return;
             }
 
-            var cardData = new PlugPagSimpleNFCData(PlugPagNearFieldCardData.ONLY_M,
-                    block, MifareClassic.KEY_DEFAULT);
+            PlugPagSimpleNFCData cardData = new PlugPagSimpleNFCData(
+                    PlugPagNearFieldCardData.ONLY_M, block,
+                    MifareClassic.KEY_DEFAULT);
 
             PlugPagNFCResult result = mPlugPag.readNFCCardDirectly(cardData);
 

@@ -44,7 +44,8 @@ public class PrinterUseCase {
                 return;
             }
 
-            var printerData = new PlugPagPrinterData(file.getAbsolutePath(), 4, 0);
+            PlugPagPrinterData printerData = new PlugPagPrinterData(file.getAbsolutePath(),
+                    4, 0);
             PlugPagPrinterListener listener = new PlugPagPrinterListener() {
                 @Override
                 public void onSuccess(PlugPagPrintResult plugPagPrintResult) {

@@ -22,13 +22,20 @@ class Nfc {
     return true;
   }
 
+  Future<bool> abortNFC() async {
+    await channel.invokeMethod(PaymentTypeCall.ABORT_NFC.method);
+    return true;
+  }
+
   Future<bool> lastTransaction() async {
     await channel.invokeMethod(PaymentTypeCall.LAST_TRANSACTION.method);
     return true;
   }
 
   Future<bool> refund({required String transactionCode, required String transactionId}) async {
-    await channel.invokeMethod(PaymentTypeCall.REFUND.method, {"transactionCode": transactionCode, "transactionId": transactionId});
+    await channel.invokeMethod(PaymentTypeCall.REFUND.method, {
+      "transactionCode": transactionCode,
+      "transactionId": transactionId});
     return true;
   }
 
@@ -38,17 +45,21 @@ class Nfc {
   }
 
   Future<bool> writeNfc(valor, nome, cpf, numeroTag, celular, aberto, idEvento) async {
-    await channel.invokeMethod(PaymentTypeCall.WRITE_NFC.method, {"valor": valor, "nome": nome, "cpf": cpf, "numeroTag": numeroTag, "celular": celular, "aberto": aberto, "idEvento": idEvento});
+    await channel.invokeMethod(PaymentTypeCall.WRITE_NFC.method, {
+      "valor": valor, "nome": nome, "cpf": cpf, "numeroTag": numeroTag,
+      "celular": celular, "aberto": aberto, "idEvento": idEvento});
     return true;
   }
 
   Future<bool> reWriteNfc(valor, idEvento) async {
-    await channel.invokeMethod(PaymentTypeCall.REWRITE_NFC.method, {"valor": valor, "idEvento": idEvento});
+    await channel.invokeMethod(PaymentTypeCall.REWRITE_NFC.method,
+        {"valor": valor, "idEvento": idEvento});
     return true;
   }
 
   Future<bool> refundNfc(valor, idEvento) async {
-    await channel.invokeMethod(PaymentTypeCall.REFUND_NFC.method, {"valor": valor, "idEvento": idEvento});
+    await channel.invokeMethod(PaymentTypeCall.REFUND_NFC.method,
+        {"valor": valor, "idEvento": idEvento});
     return true;
   }
 
@@ -58,7 +69,8 @@ class Nfc {
   }
 
   Future<bool> debitNfc(idEvento, valor) async {
-    await channel.invokeMethod(PaymentTypeCall.DEBIT_NFC.method, {"idEvento": idEvento, "valor": valor});
+    await channel.invokeMethod(PaymentTypeCall.DEBIT_NFC.method,
+        {"idEvento": idEvento, "valor": valor});
     return true;
   }
 
@@ -86,7 +98,8 @@ class Nfc {
         break;
       case PaymentTypeHandler.WRITE_TO_FILE:
         {
-          nfcHandler.writeToFile(transactionCode: call.arguments['transactionCode'], transactionId: call.arguments['transactionId']);
+          nfcHandler.writeToFile(transactionCode: call.arguments['transactionCode'],
+              transactionId: call.arguments['transactionId']);
         }
         break;
       case PaymentTypeHandler.ON_ABORTED_SUCCESSFULLY:
@@ -112,7 +125,9 @@ class Nfc {
 
       case PaymentTypeHandler.ON_TRANSACTION_INFO:
         {
-          nfcHandler.onTransactionInfo(transactionCode: call.arguments['transactionCode'], transactionId: call.arguments['transactionId']);
+          nfcHandler.onTransactionInfo(
+              transactionCode: call.arguments['transactionCode'],
+              transactionId: call.arguments['transactionId']);
         }
         break;
 

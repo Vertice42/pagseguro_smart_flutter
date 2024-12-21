@@ -145,6 +145,7 @@ enum PaymentTypeCall {
   PIX,
   VOUCHER,
   ABORT,
+  ABORT_NFC,
   LAST_TRANSACTION,
   REFUND,
   ACTIVEPINPAD,
@@ -195,6 +196,8 @@ extension PaymentTypeCallExt on PaymentTypeCall {
         return "paymentVoucher";
       case PaymentTypeCall.ABORT:
         return "paymentAbort";
+      case PaymentTypeCall.ABORT_NFC:
+        return "abortNfc";
       case PaymentTypeCall.LAST_TRANSACTION:
         return "paymentLastTransaction";
       case PaymentTypeCall.REFUND:
